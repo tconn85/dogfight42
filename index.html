@@ -197,6 +197,33 @@
     flex-direction:column;
     gap:4px;
   }
+  @media (max-width:768px){
+    #throttleCard{
+      margin-left:auto;
+      padding:0;
+      min-width:auto;
+      background:none;
+      border:none;
+      box-shadow:none;
+    }
+    #throttleCard .throttle-label,
+    #throttleCard .throttle-unit,
+    #throttleCard .throttle-bar{
+      display:none;
+    }
+    #throttleCard .throttle-header{
+      justify-content:flex-end;
+      padding:0;
+    }
+    .throttle-readout{
+      gap:0;
+      text-shadow:0 2px 4px rgba(0,0,0,.55);
+    }
+    #speedValue{
+      font-size:24px;
+      letter-spacing:0.08em;
+    }
+  }
   #boostBar{
     position:relative;
     width:100%;
