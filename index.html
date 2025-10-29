@@ -42,24 +42,54 @@
   .hud-card{
     display:flex;
     align-items:center;
-    gap:10px;
-    min-height:24px;
-    padding:4px 8px;
-    border-radius:7px;
-    background:rgba(12,20,30,.26);
-    border:1px solid rgba(255,255,255,.08);
+    gap:8px;
+    min-height:22px;
+    padding:4px 7px;
+    border-radius:6px;
+    background:rgba(12,20,30,.24);
+    border:1px solid rgba(255,255,255,.07);
     box-shadow:none;
     backdrop-filter:blur(.6px);
     pointer-events:none;
   }
   #roundBadge {
     position:relative;
-    letter-spacing:0.16em;
+    min-width:84px;
+    justify-content:center;
+    letter-spacing:0.08em;
     text-transform:uppercase;
-    font-size:10px;
-    color:#f8fbff;
+    font-size:11px;
+    font-weight:600;
+    color:#f5f4ec;
+    padding:6px 16px 8px;
+    background:linear-gradient(140deg,#243726 0%,#2b3f2d 45%,#213221 100%);
+    border-radius:4px;
+    box-shadow:0 4px 10px rgba(0,0,0,.35);
+    font-family:"Courier New", "Lucida Console", monospace;
   }
-  #roundBadge span { color:#ffe4a4; }
+  #roundBadge::before{
+    content:"";
+    position:absolute;
+    inset:-5px;
+    border-radius:6px;
+    background:linear-gradient(90deg,#4d3118 0%,#734d2c 50%,#4d3118 100%);
+    z-index:-2;
+    box-shadow:0 3px 10px rgba(0,0,0,.35);
+  }
+  #roundBadge::after{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    border-radius:5px;
+    border:1px solid rgba(255,255,255,.05);
+    background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(0,0,0,.2));
+    z-index:-1;
+  }
+  #roundBadge span {
+    color:#fefdf6;
+    font-weight:700;
+    text-shadow:0 1px 1px rgba(0,0,0,.2),0 0 6px rgba(255,255,255,.08);
+  }
   #hudStatus{
     display:flex;
     flex-direction:column;
@@ -67,18 +97,28 @@
     gap:5px;
   }
   #hpBlock { display:flex; flex-direction:column; gap:3px; min-width:118px; }
-  #hpLabel { font-size:11px; letter-spacing:0.09em; text-transform:uppercase; color:#f3e0c4; }
+  #hpLabel {
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:#dccfb9;
+    text-shadow:0 1px 1px rgba(0,0,0,.45);
+  }
   #hpBar {
     width:100%; height:7px;
-    border:1px solid rgba(255,255,255,.15);
-    background:rgba(14,22,30,.72);
+    border:1px solid rgba(32,40,46,.85);
+    background:
+      linear-gradient(180deg,rgba(9,13,16,.92),rgba(12,18,24,.92)),
+      repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 9px,rgba(0,0,0,.16) 9px 18px);
     border-radius:3px; overflow:hidden;
-    box-shadow:none;
+    box-shadow:inset 0 1px 2px rgba(255,255,255,.05), inset 0 -1px 2px rgba(0,0,0,.45);
   }
   #hpFill {
     height:100%; width:100%;
-    background:linear-gradient(90deg,#ff9f66 0%, #ffd36a 40%, #fff2b8 100%);
-    box-shadow:none;
+    background:
+      linear-gradient(180deg,rgba(135,34,30,.9),rgba(80,16,14,.95)),
+      repeating-linear-gradient(90deg,rgba(255,208,166,.18) 0 12px,rgba(0,0,0,0) 12px 24px);
+    box-shadow:inset 0 0 8px rgba(0,0,0,.45);
   }
   #boostBar {
     width:120px; height:7px;
@@ -104,6 +144,11 @@
     border-radius:6px;
     min-height:22px;
   }
+  body.touch-device #roundBadge{
+    padding:5px 14px 7px;
+  }
+  body.touch-device #roundBadge::before{ inset:-4px; }
+  body.touch-device #roundBadge::after{ inset:-1px; }
   body.touch-device #hpBlock{ min-width:105px; gap:2px; }
   body.touch-device #hpLabel{ font-size:10px; letter-spacing:0.08em; }
   body.touch-device #hpBar,
@@ -240,7 +285,7 @@
 <canvas id="game"></canvas>
 
 <div id="hud">
-  <div id="roundBadge" class="hud-card">Round: <span id="roundDisplay">1</span></div>
+  <div id="roundBadge" class="hud-card">Round <span id="roundDisplay">1</span></div>
   <div id="hudStatus" class="hud-card">
     <div id="hpBlock">
       <span id="hpLabel">HP: 0 / 0</span>
