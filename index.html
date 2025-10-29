@@ -150,17 +150,145 @@
     mix-blend-mode:soft-light;
     pointer-events:none;
   }
-  #boostBar {
-    width:110px; height:6px;
-    border:1px solid rgba(255,255,255,.1);
-    background:rgba(16,24,32,.55);
-    border-radius:3px; overflow:hidden;
-    box-shadow:none;
+  .throttle-card{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    padding:6px 10px 8px;
+    min-width:160px;
+    background:rgba(10,16,24,.32);
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,.06);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.18);
+    pointer-events:none;
   }
-  #boostFill {
-    height:100%; width:0%;
-    background:linear-gradient(90deg,#6de6ff 0%, #86efc2 55%, #c4ff94 100%);
-    box-shadow:none;
+  .throttle-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:12px;
+  }
+  .throttle-label{
+    font-size:10px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:rgba(169,198,220,.95);
+  }
+  .throttle-readout{
+    display:flex;
+    align-items:baseline;
+    gap:4px;
+    font-family:'Oswald','Arial Narrow',sans-serif;
+    font-weight:700;
+    color:#f7e8bf;
+    text-shadow:0 1px 2px rgba(0,0,0,0.55);
+  }
+  #speedValue{
+    font-size:18px;
+    letter-spacing:0.02em;
+  }
+  .throttle-unit{
+    font-size:10px;
+    letter-spacing:0.28em;
+  }
+  .throttle-bar{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  #boostBar{
+    position:relative;
+    width:100%;
+    height:10px;
+    border-radius:5px;
+    background:linear-gradient(180deg, rgba(22,30,40,0.92) 0%, rgba(10,16,24,0.95) 100%);
+    border:1px solid rgba(203,216,228,0.16);
+    overflow:hidden;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  #boostBar::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:repeating-linear-gradient(90deg, rgba(255,255,255,0.16) 0 1px, transparent 1px 12px);
+    opacity:0.35;
+    pointer-events:none;
+    z-index:2;
+  }
+  #boostBar::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 55%, rgba(0,0,0,0.38) 100%);
+    mix-blend-mode:overlay;
+    pointer-events:none;
+    z-index:3;
+  }
+  #boostFill{
+    position:absolute;
+    inset:0;
+    width:0%;
+    background:linear-gradient(90deg,#3ae2ff 0%, #6ff0d0 48%, #dffe7c 92%);
+    box-shadow:0 0 12px rgba(111,240,208,0.35);
+    z-index:1;
+    transition:width 0.12s ease-out;
+  }
+  #boostFill::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.05) 55%, rgba(0,0,0,0.28) 100%);
+    mix-blend-mode:screen;
+    opacity:0.55;
+    pointer-events:none;
+    z-index:1;
+  }
+  .throttle-scale{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:4;
+  }
+  .throttle-scale .tick{
+    position:absolute;
+    bottom:-4px;
+    width:1px;
+    height:16px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.1) 55%, rgba(0,0,0,0.2) 100%);
+    opacity:0.55;
+  }
+  .throttle-scale .tick::after{
+    content:"";
+    position:absolute;
+    bottom:-2px;
+    left:-2px;
+    width:5px;
+    height:2px;
+    border-radius:4px;
+    background:rgba(255,255,255,0.22);
+  }
+  .throttle-scale .tick.tick-minor{
+    height:10px;
+    opacity:0.35;
+  }
+  .throttle-scale .tick.tick-minor::after{
+    bottom:-1px;
+    width:3px;
+    left:-1px;
+    height:1px;
+  }
+  .throttle-scale .tick.tick-cruise{
+    height:12px;
+    opacity:0.8;
+  }
+  .throttle-markers{
+    display:flex;
+    justify-content:space-between;
+    font-size:9px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:rgba(198,214,229,0.75);
   }
   body.touch-device #hud {
     top:7px; left:7px; right:7px;
@@ -182,14 +310,19 @@
   body.touch-device #roundBadge .round-number{ font-size:1.08em; }
   body.touch-device #hpBlock{ min-width:100px; gap:2px; }
   body.touch-device #hpLabel{ font-size:9px; letter-spacing:0.08em; }
-  body.touch-device #hpBar,
-  body.touch-device #boostBar{
+  body.touch-device #hpBar{
     height:5px;
     border-radius:3px;
   }
   body.touch-device #boostBar{
-    width:92px;
+    height:8px;
   }
+  body.touch-device .throttle-card{
+    padding:5px 8px 7px;
+    min-width:0;
+    width:100%;
+  }
+  body.touch-device .throttle-markers{ font-size:8px; }
 
   /* Overlay */
   .overlay {
@@ -322,7 +455,30 @@
       <span id="hpLabel">HP: 0 / 0</span>
       <div id="hpBar"><div id="hpFill"></div></div>
     </div>
-    <div id="boostBar"><div id="boostFill"></div></div>
+  </div>
+  <div id="throttleCard" class="throttle-card">
+    <div class="throttle-header">
+      <span class="throttle-label">Throttle</span>
+      <span class="throttle-readout"><span id="speedValue">000</span><span class="throttle-unit">MPH</span></span>
+    </div>
+    <div class="throttle-bar">
+      <div id="boostBar">
+        <div class="throttle-scale">
+          <span class="tick tick-idle" style="left:0%;"></span>
+          <span class="tick tick-minor" style="left:20%;"></span>
+          <span class="tick tick-cruise" style="left:35%;"></span>
+          <span class="tick tick-minor" style="left:60%;"></span>
+          <span class="tick tick-minor" style="left:80%;"></span>
+          <span class="tick tick-max" style="left:100%;"></span>
+        </div>
+        <div id="boostFill"></div>
+      </div>
+      <div class="throttle-markers">
+        <span>Idle</span>
+        <span>Cruise</span>
+        <span>Max</span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -393,6 +549,7 @@ const btnReplay   = document.getElementById('btnReplay');
 const btnMenu     = document.getElementById('btnMenu');
 const hpLabel     = document.getElementById('hpLabel');
 const boostFill   = document.getElementById('boostFill');
+const speedValue  = document.getElementById('speedValue');
 const hpFill      = document.getElementById('hpFill');
 const controlsRow = document.getElementById('controlsRow');
 const instructionBody = document.getElementById('instructionBody');
@@ -1596,6 +1753,7 @@ function Plane(x,y,isPlayer){
   this.radius=isPlayer?16:15;
   this.fireCooldown=0;
   this.trail = new RingTrail(42);
+  this.trueAirSpeed = 0;
   this.enemyFireCd=rand(0.12,0.22);
   this.hitFlash=0;
   this.enginePower = isPlayer ? THROTTLE_CENTER : 0.45;
@@ -2107,8 +2265,11 @@ Plane.prototype._applyFlightDynamics=function(desiredSpeed, dt, gravityMul){
   }
 
   const gMul = (gravityMul===void 0) ? 1 : gravityMul;
-  this.x += Math.cos(this.angle) * speed * dt;
-  this.y += (Math.sin(this.angle) * speed + GRAVITY * gMul + sink) * dt;
+  const vx = Math.cos(this.angle) * speed;
+  const vy = Math.sin(this.angle) * speed + GRAVITY * gMul + sink;
+  this.x += vx * dt;
+  this.y += vy * dt;
+  this.trueAirSpeed = Math.max(0, Math.hypot(vx, vy));
 
   return speed;
 };
@@ -2147,8 +2308,11 @@ Plane.prototype._updateCrash=function(dt){
   this.crashFallSpeed = Math.min(this.crashFallSpeed + CRASH_DROP_ACCEL*dt, CRASH_MAX_DROP);
   const forwardBlend = clamp(this.crashFallSpeed / CRASH_MAX_DROP, 0, 1);
   const forwardSpeed = lerp(this.crashForwardSpeed, CRASH_FORWARD_MIN, forwardBlend);
-  this.x += this.crashForwardDir * forwardSpeed * dt;
-  this.y += this.crashFallSpeed * dt;
+  const crashVx = this.crashForwardDir * forwardSpeed;
+  const crashVy = this.crashFallSpeed;
+  this.x += crashVx * dt;
+  this.y += crashVy * dt;
+  this.trueAirSpeed = Math.max(0, Math.hypot(crashVx, crashVy));
   this.angle += this.crashSpinRate * dt;
   this.crashSpinRate += this.crashYawDrift * dt * 0.3;
   this.bank += (Math.sign(this.crashSpinRate||this.crashForwardDir) * 1.6 - this.bank) * Math.min(1, dt*1.8);
@@ -2804,6 +2968,13 @@ function explodeAt(x,y,count,spd,inferno){
    14) HUD
 ================================*/
 let _hudTimer = 0;
+const P40_CRUISE_MPH = 273;
+const P40_MAX_MPH = 360;
+const P40_CRUISE_UNITS = BASE_SPEED + THROTTLE_CENTER * BOOST_ADD;
+const P40_MAX_UNITS = BASE_SPEED + BOOST_ADD;
+const P40_UNITS_DELTA = Math.max(1e-6, P40_MAX_UNITS - P40_CRUISE_UNITS);
+const P40_UNITS_TO_MPH = (P40_MAX_MPH - P40_CRUISE_MPH) / P40_UNITS_DELTA;
+const P40_LOW_UNITS_TO_MPH = P40_CRUISE_MPH / Math.max(1e-6, P40_CRUISE_UNITS);
 function updateHud(dt){
   _hudTimer += dt;
   if (_hudTimer < 0.1) return;
@@ -2824,8 +2995,19 @@ function updateHud(dt){
     hpFill.style.setProperty('--hp-fill-color', color);
   }
   if (boostFill){
-    const sb = (state.player ? state.player.speedBoost : 0);
-    boostFill.style.width = (((sb*100)|0)) + '%';
+    const sb = state.player ? clamp(state.player.speedBoost, 0, 1) : 0;
+    boostFill.style.width = (sb * 100).toFixed(1) + '%';
+  }
+  if (speedValue){
+    let mphDisplay = 0;
+    if (state.player && isFinite(state.player.trueAirSpeed)){
+      const airUnits = state.player.trueAirSpeed;
+      const mph = airUnits >= P40_CRUISE_UNITS
+        ? P40_CRUISE_MPH + (airUnits - P40_CRUISE_UNITS) * P40_UNITS_TO_MPH
+        : airUnits * P40_LOW_UNITS_TO_MPH;
+      mphDisplay = Math.min(999, Math.max(0, Math.round(mph)));
+    }
+    speedValue.textContent = String(mphDisplay).padStart(3, '0');
   }
 }
 
