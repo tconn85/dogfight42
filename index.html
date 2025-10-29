@@ -1400,6 +1400,7 @@ const STALL_PRE_SINK_SCALE = 0.55;
 
 const GUN_HEAT_PER_SHOT=0.12, GUN_COOL_RATE=0.5, GUN_OVERHEAT_THRESHOLD=1.0, GUN_RECOVER_THRESHOLD=0.55;
 const PLAYER_MAX_HP=18, ENEMY_MAX_HP=16;
+const HP_HEARTS_DISPLAY_TIME = 1.6;
 const CRITICAL_FIRE_HP_ABS = 2;
 const CRITICAL_FIRE_HP_FRAC = 0.12;
 const FLAME_GLOW_COLORS = ['#fff1c1','#ffd48a','#ffb347','#ff9248','#ff713b'];
@@ -1606,6 +1607,8 @@ function Plane(x,y,isPlayer){
   this.isCrashing = false;
   this.crashFallSpeed=0; this.crashForwardSpeed=0; this.crashForwardDir=1; this.crashSpinRate=0; this.crashYawDrift=0; this.crashFireTimer=0; this.crashExploded=false;
   this.heatVisibleTimer = 0;
+  this.hpHeartsTimer = 0;
+  this.hpHeartsTimerMax = HP_HEARTS_DISPLAY_TIME;
   this.stallMeter = 0;
   this.isStalling = false;
   this.stallAudioBlend = 0;
@@ -1667,6 +1670,7 @@ Plane.prototype.update=function(dt){
   }
 
   if (this.isPlayer){
+    this.hpHeartsTimer = Math.max(0, this.hpHeartsTimer - dt);
     this.heatVisibleTimer = Math.max(0, this.heatVisibleTimer - dt);
     const left=keyDown(['ArrowLeft','KeyA']), right=keyDown(['ArrowRight','KeyD']);
     const throttleUp=keyDown(['ArrowUp','KeyW']), throttleDown=keyDown(['ArrowDown','KeyS']);
@@ -2301,40 +2305,84 @@ Plane.prototype.draw=function(g){
 
   if (this.hitFlash>0){ g.globalAlpha=this.hitFlash*.8; g.fillStyle='#fff'; g.fillRect(this.x-30,this.y-22,60,44); g.globalAlpha=1; }
 
+  if (this.isPlayer && !this.isCrashing && this.hpHeartsTimer > 0){
+    const totalHearts = 3;
+    const hpRatio = this.maxHp > 0 ? clamp(this.hp / this.maxHp, 0, 1) : 0;
+    const heartsFilled = Math.max(0, Math.ceil(hpRatio * totalHearts));
+    const heartSpacing = 18;
+    const totalWidth = heartSpacing * (totalHearts - 1);
+    const baseX = this.x - totalWidth / 2;
+    const baseY = this.y - 40;
+    const alpha = clamp(this.hpHeartsTimerMax > 0 ? this.hpHeartsTimer / this.hpHeartsTimerMax : 0, 0, 1);
+    const bubbleW = totalWidth + 28;
+    const bubbleH = 26;
+    g.save();
+    g.globalAlpha = alpha * 0.45;
+    g.fillStyle = 'rgba(0,0,0,0.55)';
+    g.fillRect(this.x - bubbleW/2, baseY - bubbleH/2, bubbleW, bubbleH);
+    g.globalAlpha = 1;
+    g.font = '18px "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji", system-ui, sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    for (let i=0;i<totalHearts;i++){
+      const heartX = baseX + i * heartSpacing;
+      const filled = i < heartsFilled;
+      g.globalAlpha = alpha * (filled ? 0.95 : 0.55);
+      g.fillStyle = filled ? '#ff7b89' : '#f1f1f5';
+      g.fillText(filled ? '♥' : '♡', heartX, baseY);
+    }
+    g.restore();
+  }
+
   if (this.isPlayer && !this.isCrashing && (this.gunOverheated || this.heatVisibleTimer > 0)){
     const heat = clamp(this.gunHeat || 0, 0, 1);
-    const bw = 60, bh = 6;
-    const x = this.x - bw/2;
-    const y = this.y - 32;
-    g.globalAlpha = 0.9;
+    const meterW = 108, meterH = 7;
+    const margin = 18;
+    const x = W - meterW - margin;
+    const y = margin + 48;
+    const panelX = x - 12;
+    const panelY = y - 20;
+    const panelW = meterW + 24;
+    const panelH = meterH + 32;
+    g.save();
+    g.globalAlpha = 0.82;
+    g.fillStyle = 'rgba(12,18,28,0.72)';
+    g.fillRect(panelX, panelY, panelW, panelH);
+    g.globalAlpha = 0.4;
+    g.strokeStyle = 'rgba(255,255,255,0.09)';
+    g.strokeRect(panelX + 0.5, panelY + 0.5, panelW - 1, panelH - 1);
+    g.globalAlpha = 1;
     g.fillStyle = 'rgba(0,0,0,0.72)';
-    g.fillRect(x-1, y-1, bw+2, bh+2);
+    g.fillRect(x - 1, y - 1, meterW + 2, meterH + 2);
     g.fillStyle = 'rgba(18,24,34,0.85)';
-    g.fillRect(x, y, bw, bh);
+    g.fillRect(x, y, meterW, meterH);
     if (this.gunOverheated || heat > 0){
       const cool=[95,169,255], warm=[255,196,112], hot=[255,96,96];
       let color = '#ff6464';
-      let fillW = bw;
+      let fillW = meterW;
       if (!this.gunOverheated){
         const heatT = heat < 0.6 ? heat/0.6 : clamp((heat-0.6)/0.4,0,1);
         color = heat < 0.6 ? mixColor(cool, warm, heatT) : mixColor(warm, hot, heatT);
-        fillW = Math.max(1, Math.floor(bw * heat));
+        fillW = Math.max(1, Math.floor(meterW * heat));
       }
       g.fillStyle = color;
-      g.fillRect(x, y, fillW, bh);
+      g.fillRect(x, y, fillW, meterH);
     }
     const prevAlign = g.textAlign;
     const prevFont = g.font;
-    g.textAlign = 'center';
-    g.font = this.gunOverheated ? '10px system-ui, sans-serif' : '9px system-ui, sans-serif';
-    g.globalAlpha = this.gunOverheated ? 0.96 : 0.78;
+    const prevBaseline = g.textBaseline;
+    g.textAlign = 'right';
+    g.textBaseline = 'top';
+    g.font = this.gunOverheated ? '12px system-ui, sans-serif' : '11px system-ui, sans-serif';
+    g.globalAlpha = this.gunOverheated ? 0.96 : 0.82;
     g.fillStyle = this.gunOverheated ? '#ffd4d4' : '#cfe8ff';
     const pct = ((heat*100)|0);
     const label = this.gunOverheated ? 'Weapon Heat OVERHEATED' : 'Weapon Heat ' + pct + '%';
-    g.fillText(label, this.x, y - 3);
+    g.fillText(label, x + meterW, panelY + 6);
     g.textAlign = prevAlign;
+    g.textBaseline = prevBaseline;
     g.font = prevFont;
-    g.globalAlpha = 1;
+    g.restore();
   }
 
   if (this.isPlayer && !this.isCrashing){
@@ -2990,6 +3038,8 @@ function update(dt){
     } else {
       if (state.player && !state.player.isCrashing && circleHit(b.x,b.y,b.r,state.player.x,state.player.y,state.player.radius)){
         b.life=0; state.player.hp=Math.max(0, state.player.hp-b.damage);
+        state.player.hpHeartsTimer = HP_HEARTS_DISPLAY_TIME;
+        state.player.hpHeartsTimerMax = HP_HEARTS_DISPLAY_TIME;
         pSpawn(state.player.x,state.player.y,{shape:'glow', life:.18, speed:140, size:10, alpha:0.9});
         if(state.player.hp<=0) state.player.beginCrash();
         sfxBulletImpact();
