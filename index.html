@@ -36,6 +36,7 @@
   #hud {
     position:fixed; top:10px; left:10px; right:10px; z-index:10;
     display:flex; justify-content:space-between; align-items:flex-start;
+    flex-wrap:wrap;
     gap:8px; pointer-events:none;
     font-weight:500; color:#f2f6ff; text-shadow:0 1px 1px rgba(0,0,0,.22);
   }
@@ -150,17 +151,160 @@
     mix-blend-mode:soft-light;
     pointer-events:none;
   }
-  #boostBar {
-    width:110px; height:6px;
-    border:1px solid rgba(255,255,255,.1);
-    background:rgba(16,24,32,.55);
-    border-radius:3px; overflow:hidden;
-    box-shadow:none;
+  #airspeedGauge{
+    position:relative;
+    width:132px;
+    height:132px;
+    padding:12px;
+    border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.12), rgba(255,255,255,0) 55%),
+      radial-gradient(circle at center, rgba(44,32,12,.55) 0%, rgba(15,18,22,.92) 62%, rgba(4,6,10,0.95) 100%);
+    border:1px solid rgba(248,235,188,.35);
+    box-shadow:0 16px 40px rgba(0,0,0,.45), inset 0 0 18px rgba(0,0,0,.45);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    pointer-events:none;
+    flex-shrink:0;
   }
-  #boostFill {
-    height:100%; width:0%;
-    background:linear-gradient(90deg,#6de6ff 0%, #86efc2 55%, #c4ff94 100%);
-    box-shadow:none;
+  #airspeedGauge::after{
+    content:"";
+    position:absolute;
+    inset:6px;
+    border-radius:50%;
+    border:1px solid rgba(9,12,15,.8);
+    box-shadow:inset 0 0 8px rgba(0,0,0,.6);
+    pointer-events:none;
+  }
+  #airspeedGauge .dial-face{
+    position:relative;
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 30%, rgba(255,255,255,.16), rgba(255,255,255,0) 50%),
+      radial-gradient(circle at center, #111a22 0%, #070d13 65%, #04070c 100%);
+    border:1px solid rgba(246,229,180,.25);
+    box-shadow:inset 0 0 18px rgba(0,0,0,.75);
+    overflow:hidden;
+  }
+  #airspeedGauge .dial-face::before{
+    content:"";
+    position:absolute;
+    inset:18px;
+    border-radius:50%;
+    border:1px solid rgba(248,234,189,.18);
+    box-shadow:inset 0 0 6px rgba(0,0,0,.6);
+    pointer-events:none;
+  }
+  #airspeedGauge .dial-face::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    background:linear-gradient(180deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 45%);
+    mix-blend-mode:screen;
+    opacity:0.65;
+    pointer-events:none;
+  }
+  #airspeedGauge .dial-mark{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform-origin:0 0;
+    transform:rotate(var(--angle));
+    z-index:3;
+  }
+  #airspeedGauge .dial-mark::before{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:3px;
+    height:16px;
+    background:linear-gradient(180deg, rgba(246,224,174,.95) 0%, rgba(150,96,36,.75) 100%);
+    border-radius:2px;
+    transform:translate(-50%, -92px);
+    box-shadow:0 2px 4px rgba(0,0,0,.4);
+  }
+  #airspeedGauge .dial-mark span{
+    display:block;
+    transform:translate(-50%, -108px) rotate(calc(var(--angle) * -1));
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.12em;
+    color:#f6e7c4;
+    text-shadow:0 0 4px rgba(0,0,0,.7);
+  }
+  #airspeedGauge .needle{
+    --needle-angle:-120deg;
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:6px;
+    height:70px;
+    transform:translate(-50%, -84%) rotate(var(--needle-angle));
+    transform-origin:50% 85%;
+    background:linear-gradient(180deg, #f9d07c 0%, #c06524 60%, #5a1f0c 100%);
+    border-radius:99px;
+    box-shadow:0 0 10px rgba(249,200,120,.45);
+    z-index:4;
+  }
+  #airspeedGauge .needle::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    bottom:-10px;
+    width:0;
+    height:0;
+    border-left:6px solid transparent;
+    border-right:6px solid transparent;
+    border-top:14px solid #5a1f0c;
+    transform:translateX(-50%);
+  }
+  #airspeedGauge .needle-cap{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    transform:translate(-50%, -50%);
+    background:radial-gradient(circle at 35% 30%, #fceab7 0%, #bb7935 45%, #4a250d 100%);
+    border:1px solid rgba(255,232,180,.25);
+    box-shadow:0 0 8px rgba(0,0,0,.55);
+    z-index:5;
+  }
+  #airspeedGauge .dial-center{
+    position:absolute;
+    left:50%;
+    top:54%;
+    transform:translate(-50%, -50%);
+    text-align:center;
+    color:#f5e4ba;
+    font-size:10px;
+    letter-spacing:0.28em;
+    z-index:4;
+  }
+  #airspeedGauge .dial-center .dial-plane{
+    display:block;
+    font-size:8px;
+    letter-spacing:0.26em;
+    margin-bottom:2px;
+    opacity:0.7;
+  }
+  #airspeedGauge .dial-center .dial-unit{
+    display:block;
+    font-size:9px;
+    letter-spacing:0.32em;
+    margin-top:4px;
+    opacity:0.85;
+  }
+  #airspeedGauge .dial-center .dial-value{
+    display:block;
+    font-size:18px;
+    font-weight:700;
+    letter-spacing:0.12em;
   }
   body.touch-device #hud {
     top:7px; left:7px; right:7px;
@@ -182,13 +326,14 @@
   body.touch-device #roundBadge .round-number{ font-size:1.08em; }
   body.touch-device #hpBlock{ min-width:100px; gap:2px; }
   body.touch-device #hpLabel{ font-size:9px; letter-spacing:0.08em; }
-  body.touch-device #hpBar,
-  body.touch-device #boostBar{
+  body.touch-device #hpBar{
     height:5px;
     border-radius:3px;
   }
-  body.touch-device #boostBar{
-    width:92px;
+  body.touch-device #airspeedGauge{
+    width:110px;
+    height:110px;
+    padding:10px;
   }
 
   /* Overlay */
@@ -322,7 +467,22 @@
       <span id="hpLabel">HP: 0 / 0</span>
       <div id="hpBar"><div id="hpFill"></div></div>
     </div>
-    <div id="boostBar"><div id="boostFill"></div></div>
+  </div>
+  <div id="airspeedGauge" role="img" aria-label="Curtiss P-40 airspeed indicator">
+    <div class="dial-face">
+      <span class="dial-mark" style="--angle:-120deg;"><span>275</span></span>
+      <span class="dial-mark" style="--angle:-49.41deg;"><span>300</span></span>
+      <span class="dial-mark" style="--angle:21.18deg;"><span>325</span></span>
+      <span class="dial-mark" style="--angle:91.76deg;"><span>350</span></span>
+      <span class="dial-mark" style="--angle:120deg;"><span>360</span></span>
+      <div id="airspeedNeedle" class="needle"></div>
+      <div class="needle-cap"></div>
+      <div class="dial-center">
+        <span class="dial-plane">CURTISS P-40</span>
+        <span class="dial-value" id="airspeedValue">275</span>
+        <span class="dial-unit">MPH</span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -392,8 +552,9 @@ const btnPlay     = document.getElementById('btnPlay');
 const btnReplay   = document.getElementById('btnReplay');
 const btnMenu     = document.getElementById('btnMenu');
 const hpLabel     = document.getElementById('hpLabel');
-const boostFill   = document.getElementById('boostFill');
 const hpFill      = document.getElementById('hpFill');
+const airspeedNeedle = document.getElementById('airspeedNeedle');
+const airspeedValue  = document.getElementById('airspeedValue');
 const controlsRow = document.getElementById('controlsRow');
 const instructionBody = document.getElementById('instructionBody');
 const menuButtons = document.getElementById('menuButtons');
@@ -1397,6 +1558,10 @@ const STALL_SPEED_MULT    = 0.48;
 const STALL_SINK_SPEED    = 120;
 const STALL_WARNING_LEVEL = 0.55;
 const STALL_PRE_SINK_SCALE = 0.55;
+const P40_CRUISE_MPH = 275;
+const P40_MAX_MPH    = 360;
+const GAUGE_SWEEP_DEG = 240;
+const GAUGE_MIN_DEG   = -120;
 
 const GUN_HEAT_PER_SHOT=0.12, GUN_COOL_RATE=0.5, GUN_OVERHEAT_THRESHOLD=1.0, GUN_RECOVER_THRESHOLD=0.55;
 const PLAYER_MAX_HP=18, ENEMY_MAX_HP=16;
@@ -1590,6 +1755,7 @@ function Plane(x,y,isPlayer){
   this.x=x; this.y=y;
   this.angle=0; this.prevAngle=0; this.bank=0;
   this.speedBoost=THROTTLE_CENTER;
+  this.currentSpeed = BASE_SPEED + this.speedBoost*BOOST_ADD;
   this.gunHeat=0; this.gunOverheated=false;
   this.isPlayer=isPlayer;
   this.maxHp=isPlayer?PLAYER_MAX_HP:ENEMY_MAX_HP; this.hp=this.maxHp;
@@ -2110,6 +2276,7 @@ Plane.prototype._applyFlightDynamics=function(desiredSpeed, dt, gravityMul){
   this.x += Math.cos(this.angle) * speed * dt;
   this.y += (Math.sin(this.angle) * speed + GRAVITY * gMul + sink) * dt;
 
+  this.currentSpeed = speed;
   return speed;
 };
 Plane.prototype.beginCrash=function(){
@@ -2823,9 +2990,18 @@ function updateHud(dt){
     hpFill.style.width = ((hpPct*100)|0) + '%';
     hpFill.style.setProperty('--hp-fill-color', color);
   }
-  if (boostFill){
-    const sb = (state.player ? state.player.speedBoost : 0);
-    boostFill.style.width = (((sb*100)|0)) + '%';
+  if (airspeedNeedle || airspeedValue){
+    let ratio = 0;
+    if (p){
+      const simSpeed = clamp((p.currentSpeed===void 0 ? (BASE_SPEED + p.speedBoost*BOOST_ADD) : p.currentSpeed), BASE_SPEED, BASE_SPEED + BOOST_ADD);
+      ratio = clamp((simSpeed - BASE_SPEED) / BOOST_ADD, 0, 1);
+    }
+    const mph = P40_CRUISE_MPH + ratio * (P40_MAX_MPH - P40_CRUISE_MPH);
+    if (airspeedValue){ airspeedValue.textContent = Math.round(mph); }
+    if (airspeedNeedle){
+      const angle = GAUGE_MIN_DEG + ratio * GAUGE_SWEEP_DEG;
+      airspeedNeedle.style.setProperty('--needle-angle', angle + 'deg');
+    }
   }
 }
 
